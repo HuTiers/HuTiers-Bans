@@ -68,8 +68,7 @@ public class UnBanCommand implements SimpleCommand {
 
             try {
                 PostgreSQL.QueryResult result = postgres
-                        .from("penalties")
-                        .eq("ban", true)
+                        .from("bans")
                         .execute()
                         .get();
 
