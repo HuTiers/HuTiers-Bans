@@ -17,7 +17,7 @@ import java.util.TimeZone;
 
 import static hu.jgj52.databaseVelocity.DatabaseVelocity.postgres;
 
-@Plugin(id = "hutiers-bans", name = "HuTiers-Bans", version = "1.0", authors = {"JGJ52"})
+@Plugin(id = "hutiers-bans", name = "HuTiers-Bans", version = "1.1", authors = {"JGJ52"})
 public class HuTiersBans {
 
     public final ProxyServer server;
@@ -33,6 +33,7 @@ public class HuTiersBans {
     public void onProxyInitialization(ProxyInitializeEvent event) {
         server.getCommandManager().register(server.getCommandManager().metaBuilder("ban").build(), new BanCommand(this));
         server.getCommandManager().register(server.getCommandManager().metaBuilder("unban").build(), new UnBanCommand(this));
+        server.getCommandManager().register(server.getCommandManager().metaBuilder("kick").build(), new KickCommand(this));
     }
 
     @Subscribe
