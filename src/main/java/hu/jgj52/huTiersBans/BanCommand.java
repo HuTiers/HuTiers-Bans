@@ -1,7 +1,6 @@
 package hu.jgj52.huTiersBans;
 
 import com.velocitypowered.api.command.SimpleCommand;
-import com.velocitypowered.api.event.connection.PreLoginEvent;
 import com.velocitypowered.api.proxy.Player;
 import net.kyori.adventure.text.Component;
 
@@ -99,6 +98,7 @@ public class BanCommand implements SimpleCommand {
             target.disconnect(Component.text(
                     "§cKi vagy tiltva a szerverről:\n" +
                             "§7Oka: §f" + r.replaceAll("&", "§") + "\n" +
+                            "§7Adta: §6" + ban.get("by").toString() +
                             "§7Lejár: §6" + expires + "\n" +
                             "§7azaz §6" + in + " múlva"
             ));
