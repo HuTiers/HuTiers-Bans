@@ -45,7 +45,7 @@ public class KickCommand implements SimpleCommand {
 
         String reason = "§c" + player.getUsername() + " kirúgott";
         if (args.length > 1) {
-            reason = String.join(":\n§f", Arrays.copyOfRange(args, 1, args.length));
+            reason = reason + ":\n§f" + String.join(" ", Arrays.copyOfRange(args, 1, args.length));
         }
         reason = reason.replaceAll("&", "§");
 
