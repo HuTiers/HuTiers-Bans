@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
@@ -17,7 +18,7 @@ import java.util.*;
 
 import static hu.jgj52.databaseVelocity.DatabaseVelocity.postgres;
 
-@Plugin(id = "hutiers-bans", name = "HuTiers-Bans", version = "1.4", authors = {"JGJ52"})
+@Plugin(id = "hutiers-bans", name = "HuTiers-Bans", version = "1.4", authors = {"JGJ52"}, dependencies = {@Dependency(id = "hutiers-messenger_velocity")})
 public class HuTiersBans {
     public final ProxyServer server;
     private final Logger logger;
