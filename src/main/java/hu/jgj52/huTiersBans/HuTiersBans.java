@@ -1,7 +1,7 @@
 package hu.jgj52.huTiersBans;
 
 import com.google.inject.Inject;
-import com.velocitypowered.api.event.connection.PreLoginEvent;
+import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.plugin.Plugin;
@@ -17,7 +17,7 @@ import java.util.*;
 
 import static hu.jgj52.databaseVelocity.DatabaseVelocity.postgres;
 
-@Plugin(id = "hutiers-bans", name = "HuTiers-Bans", version = "1.2", authors = {"JGJ52"})
+@Plugin(id = "hutiers-bans", name = "HuTiers-Bans", version = "1.3", authors = {"JGJ52"})
 public class HuTiersBans {
     public final ProxyServer server;
     private final Logger logger;
@@ -106,7 +106,7 @@ public class HuTiersBans {
                     target.disconnect(Component.text(
                             "§cKi vagy tiltva a szerverről:\n" +
                                     "§7Oka: §f" + r.replaceAll("&", "§") + "\n" +
-                                    "§7Adta: §6" + ban.get("by").toString() +
+                                    "§7Adta: §6" + ban.get("by").toString() + "\n" +
                                     "§7Lejár: §6" + expires + "\n" +
                                     "§7azaz §6" + in + " múlva"
                     ));
@@ -118,9 +118,8 @@ public class HuTiersBans {
     }
 
     @Subscribe
-    public void beforeJoin(PreLoginEvent event) {
-        try {
-            PostgreSQL.QueryResult result = postgres.from("bans").eq("uuid", event.getUniqueId()).execute().get();
+    public void beforeJoin(LoginEvent event) {
+        postgres.from("bans").eq("uuid", event.getPlayer().getUniqueId()).execute().thenAccept(result -> {
             if (!result.isEmpty()) {
                 Map<String, Object> ban = result.first();
                 SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -142,7 +141,7 @@ public class HuTiersBans {
                     if (minutes > 0) sb.append(minutes).append(" perc ");
                     if (seconds > 0 || sb.isEmpty()) sb.append(seconds).append(" másodperc");
                 } else {
-                    postgres.from("bans").eq("uuid", event.getUniqueId()).delete().get();
+                    postgres.from("bans").eq("uuid", event.getPlayer().getUniqueId()).delete();
                     return;
                 }
 
@@ -151,16 +150,14 @@ public class HuTiersBans {
 
                 String reason = ban.get("reason").toString();
 
-                event.setResult(PreLoginEvent.PreLoginComponentResult.denied(Component.text(
+                event.getPlayer().disconnect(Component.text(
                         "§cKi vagy tiltva a szerverről:\n" +
                                 "§7Oka: §f" + reason.replaceAll("&", "§") + "\n" +
-                                "§7Adta: §6" + ban.get("by").toString() +
+                                "§7Adta: §6" + ban.get("by").toString() + "\n" +
                                 "§7Lejár: §6" + expires + "\n" +
                                 "§7azaz §6" + in + " múlva"
-                )));
+                ));
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        });
     }
 }
