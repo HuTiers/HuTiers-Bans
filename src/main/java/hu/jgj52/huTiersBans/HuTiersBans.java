@@ -9,6 +9,10 @@ import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import hu.jgj52.databaseVelocity.PostgreSQL;
+import hu.jgj52.huTiersBans.Commands.BanCommand;
+import hu.jgj52.huTiersBans.Commands.KickCommand;
+import hu.jgj52.huTiersBans.Commands.UnBanCommand;
+import hu.jgj52.huTiersBans.Utils.Reason;
 import hu.jgj52.huTiersMessengerVelocity.Messenger;
 import net.kyori.adventure.text.Component;
 import org.slf4j.Logger;
@@ -18,7 +22,7 @@ import java.util.*;
 
 import static hu.jgj52.databaseVelocity.DatabaseVelocity.postgres;
 
-@Plugin(id = "hutiers-bans", name = "HuTiers-Bans", version = "1.5", authors = {"JGJ52"}, dependencies = {@Dependency(id = "hutiers-messenger_velocity")})
+@Plugin(id = "hutiers-bans", name = "HuTiers-Bans", version = "1.5", authors = {"JGJ52", "Polokalap"}, dependencies = {@Dependency(id = "hutiers-messenger_velocity")})
 public class HuTiersBans {
     public final ProxyServer server;
     private final Logger logger;
@@ -34,7 +38,6 @@ public class HuTiersBans {
         server.getCommandManager().register(server.getCommandManager().metaBuilder("ban").build(), new BanCommand(this));
         server.getCommandManager().register(server.getCommandManager().metaBuilder("unban").build(), new UnBanCommand(this));
         server.getCommandManager().register(server.getCommandManager().metaBuilder("kick").build(), new KickCommand(this));
-
 
         Messenger.listen("ban", message -> new Thread(() -> {
             String[] args = message.split(" ", 5);
@@ -77,40 +80,8 @@ public class HuTiersBans {
                     Optional<Player> playerOpt = server.getPlayer(UUID.fromString(uuid));
                     if (playerOpt.isEmpty()) return;
                     Player target = playerOpt.get();
-                    Map<String, Object> ban = result.first();
 
-                    SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-                    df.setTimeZone(TimeZone.getTimeZone("Europe/Budapest"));
-
-                    StringBuilder sb = new StringBuilder();
-                    long diff = Long.parseLong(ban.get("expires").toString()) - System.currentTimeMillis();
-
-                    if (diff > 0) {
-                        long seconds = diff / 1000;
-                        long days = seconds / 86400;
-                        seconds %= 86400;
-                        long hours = seconds / 3600;
-                        seconds %= 3600;
-                        long minutes = seconds / 60;
-                        seconds %= 60;
-                        if (days > 0) sb.append(days).append(" nap ");
-                        if (hours > 0) sb.append(hours).append(" óra ");
-                        if (minutes > 0) sb.append(minutes).append(" perc ");
-                        if (seconds > 0 || sb.isEmpty()) sb.append(seconds).append(" másodperc");
-                    }
-
-                    String expires = df.format(new Date(Long.parseLong(ban.get("expires").toString())));
-                    String in = sb.toString().trim();
-
-                    String r = ban.get("reason").toString();
-
-                    target.disconnect(Component.text(
-                            "§cKi vagy tiltva a szerverről:\n" +
-                                    "§7Oka: §f" + r.replaceAll("&", "§") + "\n" +
-                                    "§7Adta: §6" + ban.get("by").toString() + "\n" +
-                                    "§7Lejár: §6" + expires + "\n" +
-                                    "§7azaz §6" + in + " múlva"
-                    ));
+                    target.disconnect(Reason.banReason(result));
                 });
             });
         }).start());
@@ -122,42 +93,11 @@ public class HuTiersBans {
     public void beforeJoin(LoginEvent event) {
         postgres.from("bans").eq("uuid", event.getPlayer().getUniqueId()).execute().thenAccept(result -> {
             if (!result.isEmpty()) {
-                Map<String, Object> ban = result.first();
-                SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-                df.setTimeZone(TimeZone.getTimeZone("Europe/Budapest"));
-
-                StringBuilder sb = new StringBuilder();
-                long diff = Long.parseLong(ban.get("expires").toString()) - System.currentTimeMillis();
-
-                if (diff > 0) {
-                    long seconds = diff / 1000;
-                    long days = seconds / 86400;
-                    seconds %= 86400;
-                    long hours = seconds / 3600;
-                    seconds %= 3600;
-                    long minutes = seconds / 60;
-                    seconds %= 60;
-                    if (days > 0) sb.append(days).append(" nap ");
-                    if (hours > 0) sb.append(hours).append(" óra ");
-                    if (minutes > 0) sb.append(minutes).append(" perc ");
-                    if (seconds > 0 || sb.isEmpty()) sb.append(seconds).append(" másodperc");
-                } else {
+                if (Long.parseLong(result.first().get("expires").toString()) <= System.currentTimeMillis()) {
                     postgres.from("bans").eq("uuid", event.getPlayer().getUniqueId()).delete();
                     return;
                 }
-
-                String expires = df.format(new Date(Long.parseLong(ban.get("expires").toString())));
-                String in = sb.toString().trim();
-
-                String reason = ban.get("reason").toString();
-
-                event.getPlayer().disconnect(Component.text(
-                        "§cKi vagy tiltva a szerverről:\n" +
-                                "§7Oka: §f" + reason.replaceAll("&", "§") + "\n" +
-                                "§7Adta: §6" + ban.get("by").toString() + "\n" +
-                                "§7Lejár: §6" + expires + "\n" +
-                                "§7azaz §6" + in + " múlva"
-                ));
+                event.getPlayer().disconnect(Reason.banReason(result));
             }
         });
     }

@@ -1,7 +1,8 @@
-package hu.jgj52.huTiersBans;
+package hu.jgj52.huTiersBans.Commands;
 
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
+import hu.jgj52.huTiersBans.HuTiersBans;
 import net.kyori.adventure.text.Component;
 
 import java.util.Arrays;

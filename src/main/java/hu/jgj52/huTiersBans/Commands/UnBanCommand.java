@@ -1,8 +1,9 @@
-package hu.jgj52.huTiersBans;
+package hu.jgj52.huTiersBans.Commands;
 
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
 import hu.jgj52.databaseVelocity.PostgreSQL;
+import hu.jgj52.huTiersBans.HuTiersBans;
 import net.kyori.adventure.text.Component;
 
 import java.util.Collections;
@@ -75,9 +76,14 @@ public class UnBanCommand implements SimpleCommand {
                 if (result.isEmpty()) return Collections.emptyList();
 
                 return result.data.stream()
+                        .filter(row -> {
+                            Object expiresObj = row.get("expires");
+                            if (!(expiresObj instanceof Number num)) return true;
+                            return num.longValue() >= System.currentTimeMillis();
+                        })
                         .map(row -> row.get("name"))
                         .filter(obj -> obj instanceof String)
-                        .map(obj -> ((String) obj))
+                        .map(obj -> (String) obj)
                         .filter(name -> name.toLowerCase().startsWith(partial))
                         .collect(Collectors.toList());
 
