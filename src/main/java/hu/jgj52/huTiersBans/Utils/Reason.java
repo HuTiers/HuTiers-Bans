@@ -26,10 +26,10 @@ public class Reason {
             seconds %= 3600;
             long minutes = seconds / 60;
             seconds %= 60;
-            if (days > 0) sb.append(days).append("d ");
-            if (hours > 0) sb.append(hours).append("h ");
-            if (minutes > 0) sb.append(minutes).append("m ");
-            if (seconds > 0 || sb.isEmpty()) sb.append(seconds).append("s ");
+            if (days > 0) sb.append(days).append(" nap ");
+            if (hours > 0) sb.append(hours).append(" óra ");
+            if (minutes > 0) sb.append(minutes).append(" perc ");
+            if (seconds > 0 || sb.isEmpty()) sb.append(seconds).append(" másodperc");
         }
 
         String expires = df.format(new Date(Long.parseLong(ban.get("expires").toString())));

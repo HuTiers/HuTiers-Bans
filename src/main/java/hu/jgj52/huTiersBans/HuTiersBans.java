@@ -22,7 +22,7 @@ import java.util.*;
 
 import static hu.jgj52.databaseVelocity.DatabaseVelocity.postgres;
 
-@Plugin(id = "hutiers-bans", name = "HuTiers-Bans", version = "1.5", authors = {"JGJ52", "Polokalap"}, dependencies = {@Dependency(id = "hutiers-messenger_velocity")})
+@Plugin(id = "hutiers-bans", name = "HuTiers-Bans", version = "1.6", authors = {"JGJ52", "Polokalap"}, dependencies = {@Dependency(id = "hutiers-messenger_velocity")})
 public class HuTiersBans {
     public final ProxyServer server;
     private final Logger logger;
