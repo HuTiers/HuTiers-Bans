@@ -33,13 +33,13 @@ public class Reason {
         }
 
         String expires = df.format(new Date(Long.parseLong(ban.get("expires").toString())));
+        String got = df.format(new Date(Long.parseLong(ban.get("got").toString())));
         String in = sb.toString().trim();
 
         String r = ban.get("reason").toString();
 
         return Component.text(
-                "§cKi vagy tiltva a szerverről:\n\n" +
-                        "§c████████" + "\n" +
+                "§c████████\n" +
                         "§c███§f██§c███\n" +
                         "§c███§f██§c███\n" +
                         "§c███§f██§c███\n" +
@@ -49,8 +49,10 @@ public class Reason {
                         "§c████████\n" +
                         "§c███§f██§c███\n" +
                         "§c████████\n\n" +
+                        "§cKi vagy tiltva a szerverről:\n" +
                         "§7Oka: §f" + r.replaceAll("&", "§") + "\n" +
-                        "§7Adta: §6" + ban.get("by").toString() + "\n" +
+                        "§7Adta: §6" + ban.get("by").toString() + "§7,\n" +
+                        "§6" + got + "§7-kor\n\n" +
                         "§7Lejár: §6" + expires + "\n" +
                         "§7(§6" + in + "§7)"
         );

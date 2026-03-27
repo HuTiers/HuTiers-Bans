@@ -39,7 +39,33 @@ public class BanCommand implements SimpleCommand {
         Optional<Player> targetOpt = plugin.server.getPlayer(targetName);
 
         if (targetOpt.isEmpty()) {
-            player.sendMessage(Component.text("§cNincs " + targetName + " nevű játékos"));
+            String reason = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
+
+            long now = System.currentTimeMillis();
+
+            long exp = now;
+
+            if (args[1].endsWith("s")) {
+                exp += Long.parseLong(args[1].replaceAll("s", "")) * 1000;
+            } else if (args[1].endsWith("m")) {
+                exp += Long.parseLong(args[1].replaceAll("m", "")) * 1000 * 60;
+            } else if (args[1].endsWith("h")) {
+                exp += Long.parseLong(args[1].replaceAll("h", "")) * 1000 * 60 * 60;
+            } else if (args[1].endsWith("d")) {
+                exp += Long.parseLong(args[1].replaceAll("d", "")) * 1000 * 60 * 60 * 24;
+            } else {
+                player.sendMessage(Component.text("§cOda kell írnod a szám mögé azt, hogy miben adod meg. §fs§c (másodperc), §fm§c (perc), §fh§c (óra) vagy §fd§c (nap)"));
+                return;
+            }
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("expires", exp);
+            data.put("reason", reason);
+            data.put("name", args[0]);
+            data.put("by", player.getUsername());
+            data.put("got", now);
+
+            postgres.from("bans").insert(data).thenAccept(result -> player.sendMessage(Component.text("§a" + args[0] + " sikeresen ki lett tiltva.")));
             return;
         }
 
@@ -47,7 +73,9 @@ public class BanCommand implements SimpleCommand {
 
         String reason = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
 
-        long exp = System.currentTimeMillis();
+        long now = System.currentTimeMillis();
+
+        long exp = now;
 
         if (args[1].endsWith("s")) {
             exp += Long.parseLong(args[1].replaceAll("s", "")) * 1000;
@@ -68,6 +96,7 @@ public class BanCommand implements SimpleCommand {
         data.put("reason", reason);
         data.put("name", target.getUsername());
         data.put("by", player.getUsername());
+        data.put("got", now);
 
         postgres.from("bans").insert(data).thenAccept(result -> {
             target.disconnect(Reason.banReason(result));
