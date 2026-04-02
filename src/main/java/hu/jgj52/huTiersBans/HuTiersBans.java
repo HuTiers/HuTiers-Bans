@@ -14,11 +14,10 @@ import hu.jgj52.huTiersBans.Utils.Reason;
 import org.slf4j.Logger;
 
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static hu.jgj52.databaseVelocity.DatabaseVelocity.postgres;
 
-@Plugin(id = "hutiers-bans", name = "HuTiers-Bans", version = "1.7", authors = {"JGJ52", "Polokalap"}, dependencies = {@Dependency(id = "hutiers-messenger_velocity")})
+@Plugin(id = "hutiers-bans", name = "HuTiers-Bans", version = "1.8", authors = {"JGJ52", "Polokalap"}, dependencies = {@Dependency(id = "hutiers-messenger_velocity")})
 public class HuTiersBans {
     public final ProxyServer server;
     private final Logger logger;
